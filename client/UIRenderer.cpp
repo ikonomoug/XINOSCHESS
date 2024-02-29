@@ -94,7 +94,7 @@ void UIRenderer::show_cursor() {
 void UIRenderer::login_screen(){
     print_centered(small_banner, true, false);
     std::cout << '\n';
-    std::string info  = "Connected to" + s->server + ':' + s->port;
+    std::string info  = "Connected to " + s->server + ':' + s->port;
     print_centered(info.c_str(), true, false, false, -20);
     gotoxy(console_width/2 - console_width*1/3, console_heigth/2);
     std::cout << "Enter username: ";
