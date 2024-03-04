@@ -59,6 +59,7 @@ int main(){
 
     client_thread.join();
     input_thread.join();
+
     system("clear");
 
 }

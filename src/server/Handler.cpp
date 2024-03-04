@@ -8,9 +8,7 @@
 
 
 
-void Handler::disconnect(User* user){
-	users.logout(user);
-}
+
 
 void Handler::set_server(Server* s){
     server = s;
@@ -42,7 +40,7 @@ User* Handler::handle_login_packet(int id, int packet_length, unsigned char* dat
 
 			users.add_user(u);
 		}else{
-			users.set_online(username, id);
+			u->login(id);
 		}
 
 		send_game_data(u);
@@ -55,15 +53,7 @@ User* Handler::handle_login_packet(int id, int packet_length, unsigned char* dat
 	}
 }
 
-void Handler::handle_logout(User* user, int packet_length, unsigned char* data){
 
-	if(user!=nullptr && user->is_connected()){
-		users.logout(user);
-	}
-	std::cout << "LOGOUT PACKET\n";
-	server->disconnect(user->get_id());
-
-}
 void Handler::send_reply(User* user, Handler::reply r, unsigned char* data, int size){
 	
 	unsigned char* message = new unsigned char[size + 1];
@@ -161,8 +151,8 @@ void Handler::handle_message(User* user, int packet_length, unsigned char* data)
 void Handler::handle_packet(User* user, int packet_length, unsigned char* data){
 
 
-	std::cout << "Handler: New packet from " << user->get_username() <<" :"<< (unsigned int)data[0] << " \nMessage: ";
-    for(int i = 0; i < packet_length; i++){
+	std::cout << user->get_username() <<" :"<< (unsigned int)data[0] << " ";
+    for(int i = 1; i < packet_length; i++){
         std::cout << data[i];
     }
     std::cout << std::endl;
@@ -173,7 +163,6 @@ void Handler::handle_packet(User* user, int packet_length, unsigned char* data){
 
 		switch(command)
     {
-		case LOGOUT    : handle_logout   (user, packet_length - 1, data + 1);    break;
 		case JOIN_GAME : handle_join_game(user, packet_length - 1, data + 1);    break;
 		case MOVE      : handle_move     (user, packet_length - 1, data + 1);    break;
 		case MESSAGE   : handle_message  (user, packet_length - 1, data + 1);    break;

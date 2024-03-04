@@ -18,9 +18,7 @@
 
 #include <assert.h>
 
-void Server::disconnect (int id){//SHIT CHANGE PLEASE MEMORY LEAK DOESNT DELETE RECS STRUCTURE
-    close(id);
-}
+
 
 void Server::set_handler(Handler* h){
     handler = h;
@@ -129,9 +127,9 @@ inline void Server::handle_new_connections(){
     // add new socket to epoll loop
     struct epoll_event event;
 
-    rec_struct* rec_s = new rec_struct;
-    event.data.ptr = rec_s;
-    rec_s->fd = infd;
+    socket_data_struct* socket_data = new socket_data_struct;
+    event.data.ptr = socket_data;
+    socket_data->fd = infd;
 
     event.events = EPOLLIN | EPOLLET;
     s = epoll_ctl (efd, EPOLL_CTL_ADD, infd, &event);
@@ -152,12 +150,12 @@ inline bool Server::is_listener_event(const struct epoll_event& event){
 }
 
 inline void Server::handle_socket_error(const struct epoll_event& event){
-    rec_struct* recs = (rec_struct*)event.data.ptr;
-    int fd = recs->fd;
+    socket_data_struct* socket_data = (socket_data_struct*)event.data.ptr;
+    int fd = socket_data->fd;
     fprintf (stderr, "epoll error\n");
     
-    handler->disconnect(recs->user);
-    delete recs;
+    socket_data->user->logout();
+    delete socket_data;
     close(fd);
 }
 
@@ -169,20 +167,20 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
         and won't get a notification again for the same data. */
 
     
-        
-    rec_struct* recs = (rec_struct*)event.data.ptr;
-    int fd = recs->fd;
-    int& position = recs->position;
-    unsigned char* buf = recs->buffer;
-    bool& done = recs->done;
-    User* &user = recs->user;
+    bool done = false;
+    socket_data_struct* socket_data = (socket_data_struct*)event.data.ptr;
+
+    int fd = socket_data->fd;
+    int &position = socket_data->position;
+    unsigned char* buf = socket_data->buffer;
+    User* &user = socket_data->user;
 
     while (true){
         if (done){
             printf ("Closed connection on descriptor %d\n", fd);
 
-            handler->disconnect(user);
-            delete recs;
+            user->logout();
+            delete socket_data;
             close(fd);
 
             break;
@@ -195,6 +193,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
             if (errno != EAGAIN){
                 perror ("read");
                 done = true;
+                continue;
             }
             break;
         }
@@ -202,7 +201,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
             // End of file. The remote has closed the connection.
 
             done = true;
-            break;
+            continue;
         }
 
         // received some data
@@ -214,7 +213,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
         while(position - i - 1 >= packet_length){// I have more data than the packet length, so full packet
 
             //give packet to handler    
-            // TODO: replace with enqueue
+            
             if(user == nullptr){
                 user = handler->handle_login_packet(fd, packet_length, buf + i + 1);
             }
@@ -261,6 +260,8 @@ inline void Server::handle_epoll_events(int n){
 }
 
 void Server::main_loop(){
+    events = new epoll_event[MAXEVENTS]();
+	std::cout << "Waiting for connections...\n";
 
     while(true) {
 		int n = epoll_wait(efd, events, MAXEVENTS, -1); 
@@ -305,25 +306,23 @@ void Server::start_server(){
 		abort ();
 	}
 
-	/* Buffer where events are returned */
-	events = new epoll_event[MAXEVENTS]();
-
-	printf("server: waiting for connections...\n");
 
     main_loop();
 	
 }
 
-void Server::send_packet(int id, int packet_length, unsigned char* data){//TODO: IMPLEMENT IN EPOLL WITH EPOLLOUT, BUFFER
+void Server::send_packet(int id, int packet_length, unsigned char* data){//TODO: MAYBE IMPLEMENT IN EPOLL WITH EPOLLOUT, BUFFER
 
     int total = 0;        // how many bytes we've sent
     int bytesleft = packet_length; // how many we have left to send
     int n;
     unsigned char p  = (unsigned char)packet_length;
 
-    send(id, &p, 1, 0);
+    n = send(id, &p, 1, 0);
+
     while(total < packet_length) {
-        n = send(id, data+total, bytesleft, 0);
+        n = send(id, data + total, bytesleft, 0);
+
         if (n == -1) { break; }
         total += n;
         bytesleft -= n;

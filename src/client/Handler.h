@@ -21,7 +21,7 @@ public:
     Client* client;
 
     enum reply : unsigned char {WAITING_FOR_OPPONENT =48, BOARD, ERROR, BAD_MOVE, YOUR_TURN, OPPONENT_TURN, LOGGED_IN, OPPONENT_NAME, GAME_STATUS, NEW_MESSAGE};
-    enum action : unsigned char {LOGIN = 48, LOGOUT, JOIN_GAME, MOVE, MESSAGE, ABORT_GAME};
+    enum action : unsigned char {LOGIN = 48, JOIN_GAME, MOVE, MESSAGE, ABORT_GAME};
 };
 
 

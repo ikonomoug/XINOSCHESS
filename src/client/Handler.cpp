@@ -17,12 +17,13 @@ void Handler::input_loop(){
         std::string move;
 
         std::cin >> move;
+
         unsigned char* data = new unsigned char[move.length()+1];
         data[0] = (unsigned char )MOVE;
         for(int i = 0; i < move.length(); i++){
             data[1+i] = move.c_str()[i];
         }
-
+        
         client->send_packet(move.length()+1, data);
     }
 }

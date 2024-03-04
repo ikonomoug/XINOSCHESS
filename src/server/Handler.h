@@ -18,14 +18,13 @@ public:
     void send_board(User* user);
     void send_game_data(User* user);
     void handle_move(User* user, int packet_length, unsigned char* data);
-    void disconnect(User* user);
 
     enum reply : unsigned char { WAITING_FOR_OPPONENT = 48, BOARD, ERROR, BAD_MOVE, YOUR_TURN, OPPONENT_TURN, LOGGED_IN, OPPONENT_NAME, GAME_STATUS, NEW_MESSAGE};
     void send_reply(User* user, reply r, unsigned char* data, int size);
     
 
 private:
-    enum action : unsigned char {LOGIN = 48, LOGOUT, JOIN_GAME, MOVE, MESSAGE, ABORT_GAME};
+    enum action : unsigned char {LOGIN = 48, JOIN_GAME, MOVE, MESSAGE, ABORT_GAME};
     
     Server* server;
 

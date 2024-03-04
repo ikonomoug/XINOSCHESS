@@ -24,8 +24,6 @@ public:
 
 	void start_server();
 
-    void disconnect(int id);
-
     void send_packet(int id, int packet_length, unsigned char* data);
 	
 private:
@@ -37,13 +35,12 @@ private:
     Handler* handler;
 
     struct epoll_event *events;
-
-	struct rec_struct{
+    
+	struct socket_data_struct{
         int fd;
         User* user = nullptr;
 		int position = 0;
 		unsigned char buffer[2*MAXPACKETSIZE];
-        bool done = false;
 	};
 
     int make_socket_non_blocking (int sfd);
