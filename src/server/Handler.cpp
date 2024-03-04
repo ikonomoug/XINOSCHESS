@@ -150,7 +150,7 @@ void Handler::handle_message(User* user, int packet_length, unsigned char* data)
 void Handler::handle_packet(User* user, int packet_length, unsigned char* data){
 
 
-	std::cout << user->get_username() <<" :"<< (unsigned int)data[0] << " ";
+	std::cout << user->get_username() <<": "<< (unsigned int)data[0] << " ";
     for(int i = 1; i < packet_length; i++){
         std::cout << data[i];
     }

@@ -14,16 +14,29 @@
 
 
 
-int main(){
+int main(int argc, char** argv){
 
     State s;
     
     s.server = SERVER;
     s.port = PORT;
+
+    if(argc > 1){
+        if(argc == 2){
+            s.server = argv[1];
+        }
+        else if(argc == 3){
+            s.server = argv[1];
+            s.port = argv[2];
+        }
+        else{
+            return 0;
+        }
+    }
     
     UIRenderer ui(&s);
     Handler handler(&s, &ui);
-    Client client(SERVER, PORT);
+    Client client(s.server, s.port);
 
     handler.set_client(&client);
     client.set_handler(&handler);
