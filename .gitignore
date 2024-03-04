@@ -1,0 +1,5 @@
+/src/server/a.out
+/src/client/a.out
+/src/server/.vscode/
+/src/client/.vscode/
+/pi_push.sh
