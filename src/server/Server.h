@@ -33,6 +33,8 @@ private:
 	};
 
     int make_socket_non_blocking (int sfd);
+    int bind_server();
+    void main_loop();
 
     void handle_epoll_events(int n);
     void handle_new_connections();
@@ -41,15 +43,11 @@ private:
 
     bool is_listener_event(const struct epoll_event& event);
     bool is_error_event(const struct epoll_event& event);
-    
+
     void disconnect(socket_data_struct* socket_data);
 
 public:
     void set_handler(Handler* h);
-
-	int bind_server();
-
-    void main_loop();
 
 	void start_server();
 

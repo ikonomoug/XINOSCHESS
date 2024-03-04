@@ -38,7 +38,7 @@ void Server::disconnect(socket_data_struct* socket_data){
     close(fd);
 }
 
-int  Server::make_socket_non_blocking (int sfd){
+int  Server::make_socket_non_blocking(int sfd){
 	int flags;
 
 	flags = fcntl(sfd, F_GETFL, 0);
