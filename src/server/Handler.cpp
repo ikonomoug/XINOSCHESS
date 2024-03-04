@@ -102,10 +102,9 @@ void Handler::handle_join_game(User* user, int packet_length, unsigned char* dat
 
 void Handler::send_board(User* user){
 
-	std::cout << "board draw from" << user->get_username()<< '\n';
+	std::cout << "Server: board to " << user->get_username()<< '\n';
 	if(user->is_in_game()){
 		std::string board = user->game->draw(user->white);
-		std::cout << board;
 
 		send_reply(user, BOARD, (unsigned char*)board.c_str(), board.length());
 	}
@@ -116,7 +115,6 @@ void Handler::send_board(User* user){
 
 void Handler::handle_move(User* user, int packet_length, unsigned char* data){
 
-	std::cout << "new move from" << user->get_username()<< '\n';
 	if(user->is_in_game() && user->turn){
 
 		std::string move((char*)data, packet_length);

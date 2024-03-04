@@ -79,7 +79,7 @@ public:
 
 	void add_user(User* user){
 		data[user->get_username()] = user;
-		std::cout << user->get_username() << " was added to playerbase\n";
+		std::cout << "Server: New user " << user->get_username() << '\n';
 	}
 
 

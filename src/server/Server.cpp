@@ -16,7 +16,6 @@
 
 #include <iostream>
 
-#include <assert.h>
 
 
 
@@ -24,10 +23,24 @@ void Server::set_handler(Handler* h){
     handler = h;
 }
 
+void Server::disconnect(socket_data_struct* socket_data){
+    
+    int fd = socket_data->fd;
+    std::cout << "Closed connection on " << fd;
+
+    if(socket_data->user != nullptr)
+        std::cout << ", " << socket_data->user->username;
+        socket_data->user->logout();
+    std::cout << '\n';
+    
+    delete socket_data;
+    close(fd);
+}
+
 int  Server::make_socket_non_blocking (int sfd){
 	int flags;
 
-	flags = fcntl (sfd, F_GETFL, 0);
+	flags = fcntl(sfd, F_GETFL, 0);
 
 	if (flags == -1){
 		perror ("fcntl");
@@ -35,9 +48,9 @@ int  Server::make_socket_non_blocking (int sfd){
 	}
 
 	flags |= O_NONBLOCK;
-	s = fcntl (sfd, F_SETFL, flags);
+	s = fcntl(sfd, F_SETFL, flags);
 	if (s == -1){
-		perror ("fcntl");
+		perror("fcntl");
 		return -1;
 	}
 
@@ -47,14 +60,15 @@ int  Server::make_socket_non_blocking (int sfd){
 int Server::bind_server(){
 	std::cout << "Binding server...\n";
 	struct addrinfo hints, *servinfo, *p;
-	int yes = 1;
-	int rv;
+	
+
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
 
+    int rv;
 	if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0){
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		return 1;
@@ -67,6 +81,7 @@ int Server::bind_server(){
 			continue;
 		}
 
+        int yes = 1;
 		if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
 			perror("setsockopt");
 			exit(1);
@@ -115,8 +130,7 @@ inline void Server::handle_new_connections(){
 
         s = getnameinfo (&in_addr, in_len, hbuf, sizeof hbuf, sbuf, sizeof sbuf, NI_NUMERICHOST | NI_NUMERICSERV);
         if (s == 0){
-            printf("Accepted connection on descriptor %d "
-                    "(host=%s, port=%s)\n", infd, hbuf, sbuf);
+            std::cout << "Accepted connection on descriptor " << infd << " (host=" << hbuf <<" port=" << sbuf << ")\n";
         }
 
     s = make_socket_non_blocking (infd);
@@ -135,8 +149,8 @@ inline void Server::handle_new_connections(){
     s = epoll_ctl (efd, EPOLL_CTL_ADD, infd, &event);
 
     if (s == -1){
-        perror ("epoll_ctl");
-        abort ();
+        perror("epoll_ctl");
+        abort();
     }
 
     }
@@ -151,12 +165,10 @@ inline bool Server::is_listener_event(const struct epoll_event& event){
 
 inline void Server::handle_socket_error(const struct epoll_event& event){
     socket_data_struct* socket_data = (socket_data_struct*)event.data.ptr;
-    int fd = socket_data->fd;
+
     fprintf (stderr, "epoll error\n");
-    
-    socket_data->user->logout();
-    delete socket_data;
-    close(fd);
+
+    disconnect(socket_data);
 }
 
 
@@ -167,7 +179,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
         and won't get a notification again for the same data. */
 
     
-    bool done = false;
+
     socket_data_struct* socket_data = (socket_data_struct*)event.data.ptr;
 
     int fd = socket_data->fd;
@@ -176,15 +188,6 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
     User* &user = socket_data->user;
 
     while (true){
-        if (done){
-            printf ("Closed connection on descriptor %d\n", fd);
-
-            user->logout();
-            delete socket_data;
-            close(fd);
-
-            break;
-        }   	
 
         ssize_t count = read(fd, buf + position, 2*MAXPACKETSIZE - position);
 
@@ -192,16 +195,16 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
             /* If errno == EAGAIN, that means we have read all data. So go back to the main loop. */
             if (errno != EAGAIN){
                 perror ("read");
-                done = true;
-                continue;
+
+                disconnect(socket_data);
             }
             break;
         }
         else if (count == 0){
             // End of file. The remote has closed the connection.
 
-            done = true;
-            continue;
+            disconnect(socket_data);
+            break;
         }
 
         // received some data
@@ -233,7 +236,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
         }
         //if have read at least one packet move buffer to front
         
-        if(i != 0 ){
+        if(i != 0){
             for(int j = 0; j < position - i; j++)
                 buf[j] = buf[i + j];
                 

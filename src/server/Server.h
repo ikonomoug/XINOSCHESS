@@ -15,17 +15,6 @@
 class Handler;
 
 class Server {
-public:
-    void set_handler(Handler* h);
-
-	int bind_server();
-
-    void main_loop();
-
-	void start_server();
-
-    void send_packet(int id, int packet_length, unsigned char* data);
-	
 private:
 	int server_socket; // listen on server_socket
 	int efd; // epoll file descriptor
@@ -35,7 +24,7 @@ private:
     Handler* handler;
 
     struct epoll_event *events;
-    
+
 	struct socket_data_struct{
         int fd;
         User* user = nullptr;
@@ -52,9 +41,22 @@ private:
 
     bool is_listener_event(const struct epoll_event& event);
     bool is_error_event(const struct epoll_event& event);
-
-
     
+    void disconnect(socket_data_struct* socket_data);
+
+public:
+    void set_handler(Handler* h);
+
+	int bind_server();
+
+    void main_loop();
+
+	void start_server();
+
+    void send_packet(int id, int packet_length, unsigned char* data);
+
+	
+
 };
 
 #endif
