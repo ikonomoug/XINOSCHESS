@@ -114,6 +114,7 @@ void Handler::send_board(User* user){
 }
 
 void Handler::handle_move(User* user, int packet_length, unsigned char* data){
+	//TODO: add game ending handling, fix castling
 
 	if(user->is_in_game() && user->turn){
 
