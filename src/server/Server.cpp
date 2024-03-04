@@ -60,6 +60,7 @@ int  Server::make_socket_non_blocking(int sfd){
 
 int Server::bind_server(){
 	std::cout << "Binding server...\n";
+    
 	struct addrinfo hints, *servinfo, *p;
 	
 
