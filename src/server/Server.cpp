@@ -28,9 +28,10 @@ void Server::disconnect(socket_data_struct* socket_data){
     int fd = socket_data->fd;
     std::cout << "Closed connection on " << fd;
 
-    if(socket_data->user != nullptr)
+    if(socket_data->user != nullptr){
         std::cout << ", " << socket_data->user->username;
         socket_data->user->logout();
+    }
     std::cout << '\n';
     
     delete socket_data;
@@ -98,7 +99,7 @@ int Server::bind_server(){
 
 	freeaddrinfo(servinfo); // all done with this structure
 
-	if (p == NULL) {
+	if (p == NULL){
 		fprintf(stderr, "server: failed to bind\n");
 		exit(1);
 	}
