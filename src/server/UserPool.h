@@ -62,6 +62,7 @@ public:
 		void logout(){
         connected = false;
         session_id = -1;
+		waiting_for_opponent = false;
     }
 
 };

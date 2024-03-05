@@ -26,14 +26,10 @@ void Server::set_handler(Handler* h){
 void Server::disconnect(socket_data_struct* socket_data){
     
     int fd = socket_data->fd;
-    std::cout << "Closed connection on " << fd;
+    std::cout << "Closed connection on " << fd << '\n';
 
-    if(socket_data->user != nullptr){
-        std::cout << ", " << socket_data->user->username;
-        socket_data->user->logout();
-    }
-    std::cout << '\n';
-    
+    handler->disconnect(socket_data->user);
+  
     delete socket_data;
     close(fd);
 }

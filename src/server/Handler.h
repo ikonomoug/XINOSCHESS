@@ -28,7 +28,7 @@ public:
     
     void send_reply(User* user, reply r, unsigned char* data, int size);
     
-
+    void disconnect(User* user);
 
 
 };

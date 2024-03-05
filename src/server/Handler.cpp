@@ -14,6 +14,19 @@ void Handler::set_server(Server* s){
     server = s;
 }
 
+void Handler::disconnect(User* user){
+	if(user != nullptr){
+        std::cout << user->username <<": logout\n";
+		
+		if(user->waiting_for_opponent){
+			users.someone_waiting_match = false;
+			users.user_waiting = nullptr;
+		}
+			
+		user->logout();
+    }
+}
+
 void Handler::send_game_data(User* user){
 	if(user->in_game){
 			if(user->turn)
