@@ -15,8 +15,17 @@ UIRenderer::UIRenderer(State* state){
     s = state;
 }
 void UIRenderer::render(){
+// simple hacky version
+// TODO: MULTIMENU/ MAYBE USING NCURSES
     if(!s->logged_in)
         return;
+    if(s->waiting_for_opponent){
+        hide_cursor();
+        print_centered("Waiting for opponent...\n");
+        
+        return;
+    }
+    show_cursor();
     system("clear");
     std::cout << s->opponent_name << '\n';
     std::cout << s->board << '\n';

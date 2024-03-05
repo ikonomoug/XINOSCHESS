@@ -195,6 +195,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
                 perror ("read");
 
                 disconnect(socket_data);
+                return;
             }
             break;
         }
@@ -202,7 +203,7 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
             // End of file. The remote has closed the connection.
 
             disconnect(socket_data);
-            break;
+            return;
         }
 
         // received some data
@@ -214,12 +215,17 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
         while(position - i - 1 >= packet_length){// I have more data than the packet length, so full packet
 
             //give packet to handler    
-            
-            if(user == nullptr){
-                user = handler->handle_login_packet(fd, packet_length, buf + i + 1);
-            }
-            else{
-                handler->handle_packet(user, packet_length, buf + i + 1);
+            bool success;
+
+            if(user == nullptr)
+                success = handler->handle_login_packet(fd, packet_length, buf + i + 1, user);          
+            else
+                success = handler->handle_packet(user, packet_length, buf + i + 1);
+
+
+            if(!success){
+                    disconnect(socket_data);
+                    return;
             }
             
 

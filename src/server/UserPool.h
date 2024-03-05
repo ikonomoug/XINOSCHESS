@@ -3,8 +3,6 @@
 
 
 #include <string>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
 #include <unordered_map>
 #include <iostream>
@@ -18,7 +16,7 @@ private:
 		
 
 public:
-		int session_id;
+		int fd;
 		std::string username;
 		bool in_game;
 		bool waiting_for_opponent;
@@ -31,8 +29,8 @@ public:
 		bool turn = false;
 
 		friend class UserPool;
-		User(std::string name, int id){
-				session_id = id;
+		User(std::string name, int fd){
+				this->fd = fd;
 				username = name;
 				in_game = false;
 				waiting_for_opponent = false;
@@ -42,8 +40,8 @@ public:
 		std::string get_username(){
 				return username;
 		}
-		int get_id(){
-				return session_id;
+		int get_fd(){
+				return fd;
 		}
 		bool is_connected(){
 				return connected;
@@ -56,12 +54,12 @@ public:
 		}
 		void login(int fd){
 			connected = true;
-			session_id = fd;
+			this->fd = fd;
 		}
 
 		void logout(){
         connected = false;
-        session_id = -1;
+        fd = -1;
 		waiting_for_opponent = false;
     }
 

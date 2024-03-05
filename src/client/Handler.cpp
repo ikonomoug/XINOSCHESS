@@ -29,17 +29,20 @@ void Handler::input_loop(){
 }
 
 void Handler::handle_packet(int packet_length, unsigned char* data){
+//TODO: CLEANUP, FUNCTION FOR EACH REPLY ETC
     reply r = (reply)data[0];
 
     switch(r)
     {   
         case WAITING_FOR_OPPONENT : s->waiting_for_opponent = true; break;
         case LOGGED_IN     : s->logged_in = true; break;
-        case BOARD         : s->board.assign((char*)(data + 1), packet_length - 1); break;
+        case BOARD         : s->board.assign((char*)(data + 1), packet_length - 1) ;s->waiting_for_opponent = false; break;
         case YOUR_TURN     : s->turn = true;  s->in_game = true; s->waiting_for_opponent = false; break;
         case OPPONENT_TURN : s->turn = false; s->in_game = true; s->waiting_for_opponent = false; break;
-        case OPPONENT_NAME : s->opponent_name.assign((char*)(data + 1), packet_length - 1); break;
+        case OPPONENT_NAME : s->opponent_name.assign((char*)(data + 1), packet_length - 1); s->waiting_for_opponent = false; break;
         case BAD_MOVE      : s->bad_move = true; break;
+        case BAD_LOGIN     : ui->print_centered("Error: Bad Login\n"); sleep(1); exit(1); break;
+        case DUPLICATE_SESSION : ui->print_centered("Error: User already logged in\n"); sleep(1); exit(1); break;
 
     }
     ui->render();

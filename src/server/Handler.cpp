@@ -40,29 +40,42 @@ void Handler::send_game_data(User* user){
 		}
 }
 
-User* Handler::handle_login_packet(int id, int packet_length, unsigned char* data){
-// TODO : disconnect currently connected user
+bool Handler::handle_login_packet(int fd, int packet_length, unsigned char* data, User* &user){
+// if its a login packet, the username at most 16 chars and the user is not connected,
+// user is logged in, returns true and assigns the user
 	action test = (action)data[0];
 	if(test == LOGIN && packet_length > 1 && packet_length <= 17){
 
 		std::string username((char *)(data + 1), packet_length - 1);
-
 		User* u = users.get_user_from_username(username);
+
 		if( u == nullptr){
-			u = new User(username, id);
+			u = new User(username, fd);
 
 			users.add_user(u);
-		}else{
-			u->login(id);
+		}else if(u->connected){
+			unsigned char r = DUPLICATE_SESSION;
+			server->send_packet(fd, 1, &r);
+
+			user = nullptr;
+			return false;
+		}
+		else{
+			u->login(fd);
 		}
 
 		send_game_data(u);
 		send_reply(u, LOGGED_IN, nullptr, 0);
-		return u;
+
+		user = u;
+		return true;
 		
 	}else{
-		//TODO: SEND LOGIN ERROR
-		return nullptr;
+		unsigned char r = BAD_LOGIN;
+		server->send_packet(fd, 1, &r);
+
+		user = nullptr;
+		return false;
 	}
 }
 
@@ -76,11 +89,15 @@ void Handler::send_reply(User* user, Handler::reply r, unsigned char* data, int 
 		message[i + 1] = data[i];
 	}
 
-	server->send_packet(user->get_id(), size + 1, message);
+	server->send_packet(user->get_fd(), size + 1, message);
 	delete[] message;
 }
 
 void Handler::handle_join_game(User* user, int packet_length, unsigned char* data){
+	if(user->in_game){
+		send_reply(user, ERROR, nullptr, 0);
+		return;
+	}
 
 	if(users.someone_waiting_match){
 		
@@ -160,9 +177,9 @@ void Handler::handle_message(User* user, int packet_length, unsigned char* data)
 }
 
 
-void Handler::handle_packet(User* user, int packet_length, unsigned char* data){
+bool Handler::handle_packet(User* user, int packet_length, unsigned char* data){
 
-
+	//print packet in terminal
 	std::cout << user->get_username() <<": "<< (unsigned int)data[0] << " ";
     for(int i = 1; i < packet_length; i++){
         std::cout << data[i];
@@ -175,11 +192,13 @@ void Handler::handle_packet(User* user, int packet_length, unsigned char* data){
 
 		switch(command)
     {
-		case JOIN_GAME : handle_join_game(user, packet_length - 1, data + 1);    break;
-		case MOVE      : handle_move     (user, packet_length - 1, data + 1);    break;
-		case MESSAGE   : handle_message  (user, packet_length - 1, data + 1);    break;
+		case JOIN_GAME : handle_join_game(user, packet_length - 1, data + 1); return true;    break;
+		case MOVE      : handle_move     (user, packet_length - 1, data + 1); return true;    break;
+		case MESSAGE   : handle_message  (user, packet_length - 1, data + 1); return true;    break;
+		default        : return false;
     }
 	}
+	return false;
 
 }
 

@@ -7,7 +7,7 @@ class Server;
 class Handler{
 private:
     enum action : unsigned char {LOGIN = 48, JOIN_GAME, MOVE, MESSAGE, ABORT_GAME};
-    enum reply : unsigned char { WAITING_FOR_OPPONENT = 48, BOARD, ERROR, BAD_MOVE, YOUR_TURN, OPPONENT_TURN, LOGGED_IN, OPPONENT_NAME, GAME_STATUS, NEW_MESSAGE};
+    enum reply : unsigned char { WAITING_FOR_OPPONENT = 48, BOARD, ERROR, BAD_MOVE, YOUR_TURN, OPPONENT_TURN, LOGGED_IN, OPPONENT_NAME, GAME_STATUS, NEW_MESSAGE, BAD_LOGIN, DUPLICATE_SESSION};
     
     Server* server;
 
@@ -15,9 +15,9 @@ private:
 
 public:
     void set_server(Server* s);
-    void handle_packet(User* user, int packet_length, unsigned char* data);
+    bool handle_packet(User* user, int packet_length, unsigned char* data);
 
-    User* handle_login_packet(int id, int packet_length, unsigned char* data);
+    bool handle_login_packet(int fd, int packet_length, unsigned char* data, User* &user);
     void handle_join_game(User* user, int packet_length, unsigned char* data);
     void handle_move(User* user, int packet_length, unsigned char* data);
     void handle_message(User* user, int packet_length, unsigned char* data);
