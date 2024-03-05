@@ -47,8 +47,7 @@ int main(int argc, char** argv){
     sleep(1);
 
     if(!client.connect_server()){
-        std::string e = "Error: Failed to connect\n";
-        ui.print_centered(e.c_str());
+        ui.print_centered("Error: Failed to connect\n");
         sleep(1);
         system("clear");
         return 2;

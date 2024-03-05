@@ -29,7 +29,7 @@ void Server::disconnect(socket_data_struct* socket_data){
     std::cout << "Closed connection on " << fd << '\n';
 
     handler->disconnect(socket_data->user);
-  
+    std::cout << std::flush;
     delete socket_data;
     close(fd);
 }

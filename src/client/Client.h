@@ -45,9 +45,6 @@ public:
     std::string port;
     int sockfd;
 
-    bool stop_program = false;
-
-
 };
 
 #endif

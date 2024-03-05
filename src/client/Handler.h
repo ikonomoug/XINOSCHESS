@@ -1,6 +1,6 @@
 #ifndef HANDLER_H
 #define HANDLER_H
-
+#include "../protocol_definitions.h"
 #include "State.h"
 #include "UIRenderer.h"
 #include "Client.h"
@@ -20,8 +20,6 @@ public:
     UIRenderer* ui;
     Client* client;
 
-    enum reply : unsigned char {WAITING_FOR_OPPONENT =48, BOARD, ERROR, BAD_MOVE, YOUR_TURN, OPPONENT_TURN, LOGGED_IN, OPPONENT_NAME, GAME_STATUS, NEW_MESSAGE, BAD_LOGIN, DUPLICATE_SESSION};
-    enum action : unsigned char {LOGIN = 48, JOIN_GAME, MOVE, MESSAGE, ABORT_GAME};
 };
 
 

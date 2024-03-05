@@ -43,7 +43,7 @@ void Handler::send_game_data(User* user){
 bool Handler::handle_login_packet(int fd, int packet_length, unsigned char* data, User* &user){
 // if its a login packet, the username at most 16 chars and the user is not connected,
 // user is logged in, returns true and assigns the user
-	action test = (action)data[0];
+	action test = action(data[0]);
 	if(test == LOGIN && packet_length > 1 && packet_length <= 17){
 
 		std::string username((char *)(data + 1), packet_length - 1);
@@ -80,7 +80,7 @@ bool Handler::handle_login_packet(int fd, int packet_length, unsigned char* data
 }
 
 
-void Handler::send_reply(User* user, Handler::reply r, unsigned char* data, int size){
+void Handler::send_reply(User* user, reply r, unsigned char* data, int size){
 	
 	unsigned char* message = new unsigned char[size + 1];
 	message[0] = (unsigned char)r;
@@ -188,7 +188,7 @@ bool Handler::handle_packet(User* user, int packet_length, unsigned char* data){
 
 	//interpret
 	if(packet_length >=1){
-		action command = (action)data[0];
+		action command = action(data[0]);
 
 		switch(command)
     {

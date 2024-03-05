@@ -24,23 +24,19 @@ void Client::set_handler(Handler* h){
 
 void Client::receiver(){        //spaghetti
     
-    int position;
-    int received_bytes;
+    int position = 0;
 
     unsigned char* buf = new unsigned char[2*256];
     while(true){
-        if(stop_program){
-            delete[] buf;
-            return;
-        }
+        
         ssize_t count = read(sockfd, buf + position, 2*MAXPACKETSIZE - position);
 
         if (count == -1){
             // do something
-            stop_program = true;
+            exit(1);
         }
         else if (count == 0){
-            stop_program = true;
+            exit(0);
         }
 
         // received some data

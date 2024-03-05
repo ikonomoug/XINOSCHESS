@@ -30,7 +30,7 @@ void Handler::input_loop(){
 
 void Handler::handle_packet(int packet_length, unsigned char* data){
 //TODO: CLEANUP, FUNCTION FOR EACH REPLY ETC
-    reply r = (reply)data[0];
+    reply r = reply(data[0]);
 
     switch(r)
     {   

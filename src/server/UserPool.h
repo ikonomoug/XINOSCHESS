@@ -18,23 +18,23 @@ private:
 public:
 		int fd;
 		std::string username;
+
 		bool in_game;
 		bool waiting_for_opponent;
+		bool turn = false;
+
 		bool connected;
-		bool game_ended;
+
 		
 		bool white;
 		Game* game = nullptr;
 		User* opponent = nullptr;
-		bool turn = false;
 
-		friend class UserPool;
 		User(std::string name, int fd){
 				this->fd = fd;
 				username = name;
 				in_game = false;
 				waiting_for_opponent = false;
-				game_ended = false;
 				connected = true;
 		}
 		std::string get_username(){
@@ -58,10 +58,10 @@ public:
 		}
 
 		void logout(){
-        connected = false;
-        fd = -1;
-		waiting_for_opponent = false;
-    }
+        	connected = false;
+        	fd = -1;
+			waiting_for_opponent = false;
+    	}
 
 };
 
