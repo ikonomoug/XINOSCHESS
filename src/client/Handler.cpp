@@ -17,6 +17,12 @@ void Handler::input_loop(){
         std::string move;
 
         std::cin >> move;
+
+        if(move == "exit"){
+            system("clear");
+            exit(0);
+
+        }
         if(move == "info"){
             ui->print_centered("\"e2e4\" to make a move\n\"resign\" to resign\n\"draw\" to offer/accept draw\n\"cdraw\" to cancel offer\n\"newgame\" to start a new game after\n\"message your message\" to send a message\n");
             sleep(6);
