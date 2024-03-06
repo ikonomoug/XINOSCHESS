@@ -119,6 +119,9 @@ bool Client::connect_server(){
 }
 
 void Client::send_packet(int packet_length, unsigned char* data){ // spaghetti
+    if(packet_length > 255)
+        return;
+
     int total = 0;        // how many bytes we've sent
     int bytesleft = packet_length; // how many we have left to send
     int n;

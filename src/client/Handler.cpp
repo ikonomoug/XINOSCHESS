@@ -56,11 +56,12 @@ void Handler::input_loop(){
         if(move == "message"){
             move = "";
             std::getline(std::cin, move);
-            unsigned char data[move.length()+1];
+            int length = move.length() + 1 > 254?254:move.length()+1;
+            unsigned char data[length];
             data[0] = SEND_MESSAGE;
-            for(int i = 0; i < move.length(); i++)
+            for(int i = 0; i < length; i++)
                 data[i+1] = move.c_str()[i];
-            client->send_packet(move.length()+1, data);
+            client->send_packet(length, data);
             ui->render();
             continue;
         }

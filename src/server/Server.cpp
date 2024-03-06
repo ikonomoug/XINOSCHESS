@@ -320,6 +320,8 @@ void Server::start_server(){
 
 void Server::send_packet(int id, int packet_length, unsigned char* data){//TODO: MAYBE IMPLEMENT IN EPOLL WITH EPOLLOUT, BUFFER
 //TODO: add packet start packet end interface
+if(packet_length>255)
+    return;
 
     int total = 0;        // how many bytes we've sent
     int bytesleft = packet_length; // how many we have left to send

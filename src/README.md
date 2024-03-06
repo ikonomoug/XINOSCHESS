@@ -14,7 +14,7 @@ byte no./action|0 [packet length]|1 [action]|2-255 [additional data]
 |RESIGN|1| 3 |null|
 |OFFER_DRAW|1| 4 |null|
 |CANCEL_DRAW|1| 5 |null|
-|MESSAGE|1 - 255| 6 |message|
+|SEND_MESSAGE|2 - 254| 6 |message|
 
  # Reply Packets
 byte no./reply|0 [packet length]|1 [reply]|2-255 [additional data]
