@@ -84,10 +84,8 @@ void UIRenderer::print_centered(const char* text, bool in_x, bool in_y, bool cle
     
     int side_space = (console_width   - get_text_width(text) )/2 + x;
     int top_space  = (console_heigth  - get_text_height(text))/2 + y;
-    //gotoxy(0,0);
 
     if(in_y){
-        //goto(0, top_space + 1);
         for(int i = 0; i < top_space; i++)
             std::cout << '\n';
     }

@@ -25,6 +25,8 @@
 
 #define MAXDATASIZE 256
 
+// Class responsible for the networking part, constructing packets and handing them to a handler
+
 class Handler;
 class Client{
 public:

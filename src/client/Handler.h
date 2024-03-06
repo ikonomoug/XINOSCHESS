@@ -5,6 +5,8 @@
 #include "UIRenderer.h"
 #include "Client.h"
 
+
+// Class responsible for user input, packet interpretation and execution and general handling
 class Client;
 class Handler{
 public:

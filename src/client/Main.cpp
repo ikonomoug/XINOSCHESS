@@ -59,13 +59,11 @@ int main(int argc, char** argv){
     std::string username;
     std::cin >> username;
     s.username = username;
-    //ui.hide_cursor();
+
     handler.login();
 
-    //sleep(1);
 
     std::thread input_thread(&Handler::input_loop, handler);
-    //client login, start input handler
 
 
 

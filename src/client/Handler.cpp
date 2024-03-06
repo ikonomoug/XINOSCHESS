@@ -108,7 +108,15 @@ void Handler::handle_packet(int packet_length, unsigned char* data){
         case LOGIN_REPLY : 
             lr = login_reply(data[1]);
             switch(lr){
-                case LOGGED_IN         : s->logged_in = true; break;
+                case LOGGED_IN         : 
+
+                s->logged_in = true; 
+                if(s->status == NOT_IN_GAME){
+                    unsigned char m = (unsigned char)JOIN_GAME;
+                    client->send_packet(1, &m);
+                }
+                break;
+                
                 case BAD_LOGIN         : ui->print_centered("Error: Bad Login\n"); sleep(1); exit(1); break;
                 case DUPLICATE_SESSION : ui->print_centered("Error: User already logged in\n"); sleep(1); exit(1); break;
             }
@@ -132,7 +140,6 @@ void Handler::login(){
 	}
 
 	client->send_packet(packet_length, message);
-    unsigned char m = (unsigned char)JOIN_GAME;
-    client->send_packet(1, &m);
+    
 	delete[] message;
 }

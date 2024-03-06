@@ -3,8 +3,9 @@
 
 #include "State.h"
 
-extern const char* small_banner;
-extern const char* banner;
+
+//Class responsible for dispaying the information in State using the render method
+
 class UIRenderer{
 public:
     UIRenderer(State* state);
@@ -28,5 +29,7 @@ public:
     State* s;
 };
 
+extern const char* small_banner;
+extern const char* banner;
 
 #endif

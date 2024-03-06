@@ -179,12 +179,13 @@ bool Handler::handle_join_game(User* user, int length, unsigned char* data){
 	}
 
 	
-	//if the opponent of the previous game has moved on, delete the game
+	// if the opponent of the previous game has moved on, delete the game
 	if((user->opponent != nullptr) && (user->opponent->game != user->game))
 		delete user->game;
-	
+	// reset game parameters
 	user->opponent = nullptr;
 	user->game = nullptr;
+	user->offers_draw = false;
 
 	if(users.someone_waiting_match){
 		
@@ -262,7 +263,7 @@ bool Handler::handle_resign(User* user, int length, unsigned char* data){
 		return false;
 	
 	User* opponent = user->opponent;
-	
+
 	user->offers_draw = false;
 
 	user->status = OPPONENT_WIN;

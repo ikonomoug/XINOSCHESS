@@ -3,11 +3,12 @@
 #include <string>
 #include "../protocol_definitions.h"
 
+
+
+// State contains all relevant information shared between Handler and UIRenderer
+
 class State{
 public:
-enum menu : int {LOGIN, MAIN, GAME, INFO};
-menu current_menu = LOGIN;
-
 
 std::string server;
 std::string port;
