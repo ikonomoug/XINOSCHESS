@@ -26,7 +26,9 @@ void Handler::input_loop(){
         if(move == "info"){
             ui->print_centered("\"e2e4\" to make a move\n\"resign\" to resign\n\"draw\" to offer/accept draw\n\"cdraw\" to cancel offer\n\"newgame\" to start a new game after\n\"message your message\" to send a message\n");
             sleep(6);
-            s->server_message = "";
+            if(s->server_message == "Type \"info\" for information\n")
+                s->server_message = "";
+            
             ui->render();
             continue;
         }
@@ -65,14 +67,14 @@ void Handler::input_loop(){
             ui->render();
             continue;
         }
-
-        unsigned char* data = new unsigned char[move.length()+1];
+        int length = move.length() + 1 > 255?255:move.length()+1;
+        unsigned char* data = new unsigned char[length];
         data[0] = (unsigned char )MOVE;
-        for(int i = 0; i < move.length(); i++){
+        for(int i = 0; i < length; i++){
             data[1+i] = move.c_str()[i];
         }
         
-        client->send_packet(move.length()+1, data);
+        client->send_packet(length, data);
 
     }
 }
