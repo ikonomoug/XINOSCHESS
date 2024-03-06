@@ -262,6 +262,8 @@ bool Handler::handle_resign(User* user, int length, unsigned char* data){
 		return false;
 	
 	User* opponent = user->opponent;
+	
+	user->offers_draw = false;
 
 	user->status = OPPONENT_WIN;
 	opponent->status = YOU_WIN;
