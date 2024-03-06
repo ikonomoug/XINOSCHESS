@@ -1,8 +1,10 @@
 #include "UIRenderer.h"
+#include "../protocol_definitions.h"
 
 #include <iostream>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
 
 
 UIRenderer::UIRenderer(State* state){
@@ -19,17 +21,32 @@ void UIRenderer::render(){
 // TODO: MULTIMENU/ MAYBE USING NCURSES
     if(!s->logged_in)
         return;
-    if(s->waiting_for_opponent){
+    if(s->status == IN_QUEUE){
         hide_cursor();
         print_centered("Waiting for opponent...\n");
         
         return;
     }
-    show_cursor();
     system("clear");
-    std::cout << s->opponent_name << '\n';
+    if(s->status == YOU_WIN){
+        std::cout << "You won!\n";
+    }
+    if(s->status == OPPONENT_WIN){
+        std::cout << "You lost...\n";
+    }
+    if(s->status == DRAW){
+        std::cout << "Game ended in draw.\n";
+    }
+
+    show_cursor();
+
+    std::cout << s->opponent_name;
+    if(s->message!="") 
+        std::cout << ": " << s->message;
+    std::cout <<'\n';
     std::cout << s->board << '\n';
-    std::cout << s->username << '\n';
+    std::cout << s->username << "\n\n";
+    std::cout << s->server_message <<"\n\n";
 }
 
 int UIRenderer::get_text_width(const char* text){

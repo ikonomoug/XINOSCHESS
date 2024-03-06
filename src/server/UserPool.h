@@ -3,10 +3,10 @@
 
 
 #include <string>
-#include <condition_variable>
 #include <unordered_map>
 #include <iostream>
 
+#include "../protocol_definitions.h"
 #include "chessv2/game.h"
 
 class User {
@@ -17,40 +17,46 @@ private:
 
 public:
 		int fd;
+		bool connected;
+
 		std::string username;
 
-		bool in_game;
-		bool waiting_for_opponent;
-		bool turn = false;
+		game_status status;
 
-		bool connected;
+		
 
 		
 		bool white;
 		Game* game = nullptr;
+		bool offers_draw = false;
 		User* opponent = nullptr;
 
 		User(std::string name, int fd){
 				this->fd = fd;
 				username = name;
-				in_game = false;
-				waiting_for_opponent = false;
+				status = NOT_IN_GAME;
 				connected = true;
 		}
 		std::string get_username(){
-				return username;
+			return username;
 		}
 		int get_fd(){
-				return fd;
+			return fd;
 		}
-		bool is_connected(){
-				return connected;
+		bool online(){
+			return connected;
 		}
-		bool is_in_matchmaking(){
-				return waiting_for_opponent;
+		bool in_queue(){
+			return status == IN_QUEUE;
 		}
-		bool is_in_game(){//
-				return in_game;
+		bool in_game(){//
+			return !(status == NOT_IN_GAME) && !(status == IN_QUEUE);
+		}
+		bool in_active_game(){
+			return (status == YOUR_TURN) || (status == OPPONENT_TURN);
+		}
+		bool turn(){
+			return status == YOUR_TURN;
 		}
 		void login(int fd){
 			connected = true;
@@ -60,7 +66,8 @@ public:
 		void logout(){
         	connected = false;
         	fd = -1;
-			waiting_for_opponent = false;
+			if(status == IN_QUEUE)
+				status == NOT_IN_GAME;
     	}
 
 };

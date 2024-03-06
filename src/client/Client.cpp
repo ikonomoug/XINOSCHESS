@@ -32,7 +32,6 @@ void Client::receiver(){        //spaghetti
         ssize_t count = read(sockfd, buf + position, 2*MAXPACKETSIZE - position);
 
         if (count == -1){
-            // do something
             exit(1);
         }
         else if (count == 0){

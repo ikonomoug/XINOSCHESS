@@ -17,6 +17,47 @@ void Handler::input_loop(){
         std::string move;
 
         std::cin >> move;
+        if(move == "info"){
+            ui->print_centered("\"e2e4\" to make a move\n\"resign\" to resign\n\"draw\" to offer/accept draw\n\"cdraw\" to cancel offer\n\"newgame\" to start a new game after\n\"message your message\" to send a message\n");
+            sleep(6);
+            s->server_message = "";
+            ui->render();
+            continue;
+        }
+        if(move == "newgame"){
+            s->message ="";
+            s->server_message = "";
+            
+            unsigned char data = JOIN_GAME;
+            client->send_packet(1, &data);
+            continue;
+        }
+        if(move == "resign"){
+            unsigned char data = RESIGN;
+            client->send_packet(1, &data);
+            continue;
+        }
+        if(move == "draw"){
+            unsigned char data = OFFER_DRAW;
+            client->send_packet(1, &data);
+            continue;
+        }
+        if(move == "cdraw"){
+            unsigned char data = CANCEL_DRAW;
+            client->send_packet(1, &data);
+            continue;
+        }
+        if(move == "message"){
+            move = "";
+            std::getline(std::cin, move);
+            unsigned char data[move.length()+1];
+            data[0] = SEND_MESSAGE;
+            for(int i = 0; i < move.length(); i++)
+                data[i+1] = move.c_str()[i];
+            client->send_packet(move.length()+1, data);
+            ui->render();
+            continue;
+        }
 
         unsigned char* data = new unsigned char[move.length()+1];
         data[0] = (unsigned char )MOVE;
@@ -25,26 +66,48 @@ void Handler::input_loop(){
         }
         
         client->send_packet(move.length()+1, data);
+
     }
 }
 
 void Handler::handle_packet(int packet_length, unsigned char* data){
-//TODO: CLEANUP, FUNCTION FOR EACH REPLY ETC
+
     reply r = reply(data[0]);
+    game_data gd;
+    login_reply lr;
 
-    switch(r)
-    {   
-        case WAITING_FOR_OPPONENT : s->waiting_for_opponent = true; break;
-        case LOGGED_IN     : s->logged_in = true; break;
-        case BOARD         : s->board.assign((char*)(data + 1), packet_length - 1) ;s->waiting_for_opponent = false; break;
-        case YOUR_TURN     : s->turn = true;  s->in_game = true; s->waiting_for_opponent = false; break;
-        case OPPONENT_TURN : s->turn = false; s->in_game = true; s->waiting_for_opponent = false; break;
-        case OPPONENT_NAME : s->opponent_name.assign((char*)(data + 1), packet_length - 1); s->waiting_for_opponent = false; break;
-        case BAD_MOVE      : s->bad_move = true; break;
-        case BAD_LOGIN     : ui->print_centered("Error: Bad Login\n"); sleep(1); exit(1); break;
-        case DUPLICATE_SESSION : ui->print_centered("Error: User already logged in\n"); sleep(1); exit(1); break;
 
+    switch(r){
+        case ERROR : break;
+
+        case GAME_STATUS :
+
+        s->status = game_status(data[1]); 
+        break;
+
+        case GAME_DATA : 
+            gd = game_data(data[1]);
+            switch(gd){
+                case BOARD          : s->board.assign((char*)(data + 2), packet_length - 2) ; break;
+                case OPPONENT_NAME  : s->opponent_name.assign((char*)(data + 2), packet_length - 2); break;
+                case MESSAGE        : s->message.assign((char*)(data + 2), packet_length - 2); break;
+                case SERVER_MESSAGE : s->server_message.assign((char*)(data + 2), packet_length - 2); break;
+            }
+        
+        break;
+
+        case LOGIN_REPLY : 
+            lr = login_reply(data[1]);
+            switch(lr){
+                case LOGGED_IN         : s->logged_in = true; break;
+                case BAD_LOGIN         : ui->print_centered("Error: Bad Login\n"); sleep(1); exit(1); break;
+                case DUPLICATE_SESSION : ui->print_centered("Error: User already logged in\n"); sleep(1); exit(1); break;
+            }
+        
+        
+        break;
     }
+
     ui->render();
 }
 

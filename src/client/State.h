@@ -1,28 +1,26 @@
 #ifndef STATE_H
 #define STATE_H
 #include <string>
+#include "../protocol_definitions.h"
 
 class State{
 public:
 enum menu : int {LOGIN, MAIN, GAME, INFO};
+menu current_menu = LOGIN;
 
 
 std::string server;
 std::string port;
-
-
 std::string username;
 
-menu current_menu = LOGIN;
 
 bool logged_in = false;
-bool waiting_for_opponent = false;
-bool in_game = false;
+game_status status = NOT_IN_GAME;
 
-bool bad_move;
-bool turn;
 std::string board;
 std::string opponent_name;
+std::string message ="";
+std::string server_message ="Type \"info\" for information\n";
 
 };
 

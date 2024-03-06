@@ -13,6 +13,7 @@ public:
     void input_loop();
 
     void handle_packet(int packet_length, unsigned char* data);
+        
 
     void login();
 

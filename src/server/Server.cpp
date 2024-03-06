@@ -215,12 +215,12 @@ inline void Server::handle_data_from_socket(const struct epoll_event& event){
         while(position - i - 1 >= packet_length){// I have more data than the packet length, so full packet
 
             //give packet to handler    
-            bool success;
+            bool success = true;
 
             if(user == nullptr)
                 success = handler->handle_login_packet(fd, packet_length, buf + i + 1, user);          
             else
-                success = handler->handle_packet(user, packet_length, buf + i + 1);
+                handler->handle_packet(user, packet_length, buf + i + 1);
 
 
             if(!success){
@@ -319,6 +319,7 @@ void Server::start_server(){
 }
 
 void Server::send_packet(int id, int packet_length, unsigned char* data){//TODO: MAYBE IMPLEMENT IN EPOLL WITH EPOLLOUT, BUFFER
+//TODO: add packet start packet end interface
 
     int total = 0;        // how many bytes we've sent
     int bytesleft = packet_length; // how many we have left to send
