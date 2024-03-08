@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 
 #include "Handler.h"
+#include <ncurses.h>
 
 Client::Client(std::string s, std::string p){
     server = s;
@@ -22,19 +23,19 @@ void Client::set_handler(Handler* h){
     handler = h;
 }
 
-void Client::receiver(){        //spaghetti
+void Client::receive(){        //spaghetti
     
-    int position = 0;
 
-    unsigned char* buf = new unsigned char[2*256];
-    while(true){
-        
         ssize_t count = read(sockfd, buf + position, 2*MAXPACKETSIZE - position);
 
         if (count == -1){
+            endwin();
+        printf("\e[ q");
             exit(1);
         }
         else if (count == 0){
+            endwin();
+        printf("\e[ q");
             exit(0);
         }
 
@@ -64,7 +65,6 @@ void Client::receiver(){        //spaghetti
                 
             position = position - i;
         }
-    }
 }
 void* Client::get_in_addr(struct sockaddr *sa){
 
@@ -85,20 +85,20 @@ bool Client::connect_server(){
     hints.ai_socktype = SOCK_STREAM;
 
     if ((rv = getaddrinfo(server.c_str(), port.c_str(), &hints, &servinfo)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        //fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return false;
     }
 
     // loop through all the results and connect to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1){
-            perror("client: socket");
+            //perror("client: socket");
             continue;
         }
 
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1){
             close(sockfd);
-            perror("client: connect");
+            //perror("client: connect");
             continue;
         }
 
@@ -106,12 +106,12 @@ bool Client::connect_server(){
     }
 
     if (p == NULL) {
-        fprintf(stderr, "client: failed to connect\n");
+        //fprintf(stderr, "client: failed to connect\n");
         return false;
     }
 
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
-    printf("client: connecting to %s\n", s);
+    //printf("client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
 

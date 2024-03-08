@@ -2,6 +2,7 @@
 #include "State.h"
 #include "UIRenderer.h"
 #include <iostream>
+#include <ncurses.h>
 
 
 Handler::Handler(State* state, UIRenderer* uir){
@@ -12,19 +13,52 @@ void Handler::set_client(Client* c){
     client = c;
 }
 
-void Handler::input_loop(){
-    while(true){
-        std::string move;
+void Handler::input(){
+    int c;
+    while( (c = getch() )!= ERR){
+        if(c != '\n'){
+            int y;
+            int x;
+            getyx(stdscr, y, x);
 
-        std::cin >> move;
+            if(c == KEY_BACKSPACE){
+                if(s->pos <= 0){
+                    beep();
+                    continue;
+                }
+                    
+                
+                s->pos--;
+                
+                move(y,x-1);
+                addch(' ');
+                ui->render();
+                continue;
+            }
+            s->input_buffer[s->pos] = c;
+            s->pos++;
+            addch(c);
+            move(y,x+1);
+            ui->render();
+            //refresh();
+            continue;
+        }
+        
+        
+        std::string move(s->input_buffer, s->pos);
+        s->pos = 0;
+        ui->render();
 
         if(move == "exit"){
-            system("clear");
+
+            endwin();
+            printf("\e[ q");
             exit(0);
 
         }
         if(move == "info"){
             ui->print_centered("\"e2e4\" to make a move\n\"resign\" to resign\n\"draw\" to offer/accept draw\n\"cdraw\" to cancel offer\n\"newgame\" to start a new game after\n\"message your message\" to send a message\n");
+            refresh();
             sleep(6);
             if(s->server_message == "Type \"info\" for information\n")
                 s->server_message = "";
@@ -55,9 +89,9 @@ void Handler::input_loop(){
             client->send_packet(1, &data);
             continue;
         }
-        if(move == "message"){
-            move = "";
-            std::getline(std::cin, move);
+        if(move.substr(0, 7) == "message"){
+            move = move.substr(8);
+
             int length = move.length() + 1 > 254?254:move.length()+1;
             unsigned char data[length];
             data[0] = SEND_MESSAGE;
@@ -80,7 +114,6 @@ void Handler::input_loop(){
 }
 
 void Handler::handle_packet(int packet_length, unsigned char* data){
-
     reply r = reply(data[0]);
     game_data gd;
     login_reply lr;
@@ -117,8 +150,22 @@ void Handler::handle_packet(int packet_length, unsigned char* data){
                 }
                 break;
                 
-                case BAD_LOGIN         : ui->print_centered("Error: Bad Login\n"); sleep(1); exit(1); break;
-                case DUPLICATE_SESSION : ui->print_centered("Error: User already logged in\n"); sleep(1); exit(1); break;
+                case BAD_LOGIN         : 
+                ui->print_centered("Error: Bad Login\n");
+                refresh(); 
+                sleep(1);
+                endwin();
+                printf("\e[ q");
+                exit(1); 
+                break;
+                case DUPLICATE_SESSION : 
+                ui->print_centered("Error: User already logged in\n");
+                 refresh(); 
+                sleep(1);
+                endwin();
+                printf("\e[ q");
+                exit(1); 
+                 break;
             }
         
         

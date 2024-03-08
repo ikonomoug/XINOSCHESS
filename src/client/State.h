@@ -23,6 +23,9 @@ std::string opponent_name;
 std::string message ="";
 std::string server_message ="Type \"info\" for information\n";
 
+char input_buffer[254];
+int pos = 0;
+
 };
 
 #endif

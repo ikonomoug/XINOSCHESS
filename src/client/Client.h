@@ -36,7 +36,7 @@ public:
     void *get_in_addr(struct sockaddr *sa);
 
     bool connect_server();
-    void receiver();
+    void receive();
     void send_packet(int packet_length, unsigned char* data);
 
 
@@ -45,6 +45,9 @@ public:
 
     std::string server;
     std::string port;
+
+    int position = 0;
+    unsigned char buf[2*256];
     int sockfd;
 
 };

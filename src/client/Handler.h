@@ -12,7 +12,7 @@ class Handler{
 public:
     Handler(State* state, UIRenderer* uir);
     void set_client(Client* c);
-    void input_loop();
+    void input();
 
     void handle_packet(int packet_length, unsigned char* data);
         
