@@ -66,8 +66,8 @@ public:
 		void logout(){
         	connected = false;
         	fd = -1;
-			if(status == IN_QUEUE)
-				status == NOT_IN_GAME;
+		if(status == IN_QUEUE)
+			status = NOT_IN_GAME;
     	}
 
 };
